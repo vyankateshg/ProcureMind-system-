@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ProcureMind — Evidence-Grounded Standards Workstation</title>
+  <meta name="description" content="ProcureMind: AI-assisted, evidence-first decision support for government procurement officers. Simulator with mock data.">
+  <link rel="stylesheet" href="vendor/fonts/fonts.css">
+  <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <a class="visually-hidden-focusable" href="#main">Skip to main content</a>
+
+  <div class="sim-banner" role="note">
+    <i class="bi bi-info-circle" aria-hidden="true"></i>
+    <span><strong>Simulator &middot; mock data.</strong> Standards, revisions and BIS statuses are demo fixtures &mdash; not live, real-time or officially verified BIS data.</span>
+  </div>
+
+  <header class="topbar">
+    <a class="brand" href="#" id="brandLink" aria-label="ProcureMind home">
+      <span class="brand-mark" aria-hidden="true"><i class="bi bi-shield-check"></i></span>
+      <span><span class="brand-word">Procure<span>Mind</span></span><span class="brand-sub">Standards Verification Workstation</span></span>
+    </a>
+    <div class="tender-chip ms-lg-3" id="tenderChip" aria-live="polite">
+      <span class="label">Tender</span><span id="tenderChipText">No tender loaded</span>
+    </div>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary btn-sm" id="auditBtn" type="button" data-bs-toggle="offcanvas" data-bs-target="#auditPanel" aria-controls="auditPanel">
+        <i class="bi bi-journal-text me-1" aria-hidden="true"></i><span class="d-none d-md-inline">Audit trail</span>
+        <span class="badge text-bg-secondary ms-1" id="auditCount">0</span>
+      </button>
+      <button class="btn btn-outline-secondary btn-sm" id="resetBtn" type="button"><i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i><span class="d-none d-md-inline">Reset Simulator</span></button>
+      <div class="officer d-none d-sm-flex">
+        <div class="avatar" aria-hidden="true">PO</div>
+        <div class="who">Procurement Officer<small>ETD &middot; Reviewing Authority</small></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <nav class="sidebar" aria-label="Workflow steps">
+      <h6>Verification workflow</h6>
+      <ol class="steps" id="stepNav"></ol>
+      <div class="principles">
+        <div class="mb-1"><i class="bi bi-person-check-fill me-1"></i><strong>Human-in-the-loop</strong></div>
+        AI proposes. Evidence supports. The officer decides &mdash; every action is written to the audit trail.
+      </div>
+    </nav>
+
+    <main class="canvas" id="main" tabindex="-1">
+
+      <!-- STEP 1 -->
+      <section class="stage is-visible" id="step-1" aria-labelledby="h-step-1">
+        <div class="hero fade-in-up">
+          <div class="stage-kicker">Step 1 &middot; Tender input</div>
+          <h1 id="h-step-1">Verify a tender against Indian Standards &mdash; with evidence.</h1>
+          <p class="lead">Select a tender, run the analysis, and review an auditable report: extracted requirements, recommended IS standards, normative links, BIS status, risk flags and the evidence behind every claim.</p>
+          <div class="pillars">
+            <span class="pillar"><i class="bi bi-file-earmark-text"></i>Requirement extraction</span>
+            <span class="pillar"><i class="bi bi-bullseye"></i>Semantic IS matching</span>
+            <span class="pillar"><i class="bi bi-diagram-3"></i>Normative graph</span>
+            <span class="pillar"><i class="bi bi-patch-check"></i>Evidence citations</span>
+            <span class="pillar"><i class="bi bi-person-check"></i>Officer decision</span>
+          </div>
+        </div>
+
+        <div class="row g-3 mt-1">
+          <div class="col-12">
+            <div class="eyebrow mb-2">Choose a pre-configured tender scenario</div>
+            <div class="row g-3" id="scenarioPicker" role="radiogroup" aria-label="Tender scenario"></div>
+          </div>
+
+          <div class="col-lg-8">
+            <div class="pm-card h-100">
+              <div class="pm-card-head">
+                <h3><i class="bi bi-cloud-arrow-up"></i>Document intake &amp; analysis</h3>
+                <button class="btn btn-primary" id="analyzeBtn" type="button" disabled><i class="bi bi-play-fill me-1" aria-hidden="true"></i><span id="analyzeBtnText">Analyze Tender</span></button>
+              </div>
+              <div class="pm-card-body">
+                <div class="dropzone idle" id="dropzone">
+                  <div class="file-ico"><i class="bi bi-file-earmark-pdf"></i></div>
+                  <div class="flex-grow-1">
+                    <div class="fname" id="dzName">No document selected</div>
+                    <div class="fmeta" id="dzMeta">Select a scenario above to attach its tender PDF.</div>
+                    <div class="progress mt-2 d-none" id="dzProgressWrap" role="progressbar" aria-label="Upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar" id="dzProgress" style="width:0%"></div></div>
+                  </div>
+                </div>
+                <ul class="pipeline mt-3" id="pipeline" aria-live="polite"></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="pm-card h-100" id="metaCard">
+              <div class="pm-card-head"><h3><i class="bi bi-card-heading"></i>Extracted tender metadata</h3><span class="pm-badge sim">Simulated extraction</span></div>
+              <div class="pm-card-body" id="metaBody"><div class="empty-note">Metadata appears after the PDF is parsed.</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 2 -->
+      <section class="stage" id="step-2" aria-labelledby="h-step-2" hidden>
+        <div class="stage-head">
+          <div><div class="stage-kicker">Step 2 &middot; Requirement extraction</div><h2 class="stage-title" id="h-step-2">Requirements found in the tender</h2><p class="stage-desc">Each requirement is traced to its exact location in the source document, with an extraction-confidence rating.</p></div>
+          <div id="reqSummary"></div>
+        </div>
+        <div class="row g-3">
+          <div class="col-lg-8"><div class="pm-card"><div class="table-responsive"><table class="pm-table" aria-describedby="h-step-2"><thead><tr><th>Category</th><th>Field</th><th>Value</th><th>Source in tender</th><th>Confidence</th></tr></thead><tbody id="reqBody"></tbody></table></div></div></div>
+          <div class="col-lg-4" id="reqSide"></div>
+        </div>
+      </section>
+
+      <!-- STEP 3 -->
+      <section class="stage" id="step-3" aria-labelledby="h-step-3" hidden>
+        <div class="stage-head">
+          <div><div class="stage-kicker">Step 3 &middot; Semantic IS recommendation</div><h2 class="stage-title" id="h-step-3">Recommended Indian Standards</h2><p class="stage-desc">Standards matched to the tender by meaning, IS number, category and graph links &mdash; with the reasoning shown, not hidden.</p></div>
+          <div id="recSummary"></div>
+        </div>
+        <div id="recList" class="d-grid gap-3"></div>
+      </section>
+
+      <!-- STEP 4 -->
+      <section class="stage" id="step-4" aria-labelledby="h-step-4" hidden>
+        <div class="stage-head">
+          <div><div class="stage-kicker">Step 4 &middot; Normative / allied graph</div><h2 class="stage-title" id="h-step-4">Standards the primary standard depends on</h2><p class="stage-desc">A product standard rarely stands alone. Allied standards for test methods, safety, installation and terminology are linked here.</p></div>
+        </div>
+        <div class="row g-3">
+          <div class="col-12"><div class="pm-card"><div class="pm-card-head"><h3><i class="bi bi-diagram-3"></i>Relationship graph</h3><div class="legend" aria-hidden="true"><span><i class="sw" style="border-color:var(--pm-blue);border-top-style:dashed"></i>Test method</span><span><i class="sw" style="border-color:var(--pm-green)"></i>Normative reference</span></div></div><div class="pm-card-body"><div class="graph-wrap"><div class="graph" id="graph" role="img" aria-label="Normative standards relationship graph"></div></div></div></div></div>
+          <div class="col-lg-8"><div class="pm-card h-100"><div class="pm-card-head"><h3><i class="bi bi-list-nested"></i>Relationship ledger</h3></div><div class="pm-card-body" id="graphTree"></div></div></div>
+          <div class="col-lg-4"><div class="pm-card h-100"><div class="pm-card-head"><h3><i class="bi bi-grid"></i>Category coverage</h3></div><div class="pm-card-body" id="graphCoverage"></div></div></div>
+        </div>
+      </section>
+
+      <!-- STEP 5 -->
+      <section class="stage" id="step-5" aria-labelledby="h-step-5" hidden>
+        <div class="stage-head">
+          <div><div class="stage-kicker">Step 5 &middot; BIS verification &amp; compliance</div><h2 class="stage-title" id="h-step-5">Standard status &amp; mandatory certification</h2><p class="stage-desc">Lifecycle status, latest revision and amendments for each recommended standard, plus certification schemes that may apply to the product.</p></div>
+        </div>
+        <div class="row g-3">
+          <div class="col-lg-8"><div class="pm-card"><div class="pm-card-head"><h3><i class="bi bi-patch-check"></i>BIS status check</h3><span class="pm-badge sim">Simulated BIS source</span></div><div id="verBody"></div></div></div>
+          <div class="col-lg-4"><div class="pm-card h-100"><div class="pm-card-head"><h3><i class="bi bi-award"></i>Certification &amp; compliance</h3></div><div class="pm-card-body" id="certBody"></div></div></div>
+        </div>
+      </section>
+
+      <!-- STEP 6 -->
+      <section class="stage" id="step-6" aria-labelledby="h-step-6" hidden>
+        <div class="stage-head">
+          <div><div class="stage-kicker">Step 6 &middot; Risk flags &amp; evidence</div><h2 class="stage-title" id="h-step-6">Issues for the officer to review</h2><p class="stage-desc">Every flag cites its trigger in the tender and the evidence behind it. Flags are advisory: they never decide for the officer.</p></div>
+          <div id="riskSummary"></div>
+        </div>
+        <div class="row g-3">
+          <div class="col-lg-8" id="riskList"></div>
+          <div class="col-lg-4"><div class="pm-card position-sticky" style="top:calc(var(--banner-h) + var(--topbar-h) + 14px)"><div class="pm-card-head"><h3><i class="bi bi-ui-checks"></i>Officer review checklist</h3><span class="small text-muted" id="ackProgress"></span></div><div class="pm-card-body checklist" id="ackList"></div></div></div>
+        </div>
+      </section>
+
+      <!-- STEP 7 -->
+      <section class="stage" id="step-7" aria-labelledby="h-step-7" hidden>
+        <div class="stage-head">
+          <div><div class="stage-kicker">Step 7 &middot; Officer review &amp; decision</div><h2 class="stage-title" id="h-step-7">Your decision</h2><p class="stage-desc">Accept, modify or reject the recommendation using the action bar at the bottom of the screen. The decision and your reasoning are recorded in the audit trail.</p></div>
+        </div>
+        <div class="row g-3">
+          <div class="col-12"><div class="row g-3" id="summaryStats"></div></div>
+          <div class="col-lg-7"><div class="pm-card h-100"><div class="pm-card-head"><h3><i class="bi bi-clipboard-check"></i>Review summary</h3></div><div class="pm-card-body" id="summaryBody"></div></div></div>
+          <div class="col-lg-5"><div class="pm-card h-100"><div class="pm-card-head"><h3><i class="bi bi-clock-history"></i>Decision history</h3></div><div class="pm-card-body" id="decisionHistory"></div></div></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Fixed decision bar -->
+  <div class="decision-bar" id="decisionBar" role="region" aria-label="Officer decision">
+    <div class="db-target">
+      <div class="eyebrow">Decision on recommended standard</div>
+      <div class="std" id="dbStd">&mdash;</div>
+      <div class="db-note" id="dbNote"></div>
+    </div>
+    <div id="dbStatus"></div>
+    <div class="db-actions">
+      <button class="btn btn-decision btn-accept" id="btnAccept" type="button"><i class="bi bi-check-lg" aria-hidden="true"></i>Accept</button>
+      <button class="btn btn-decision btn-modify" id="btnModify" type="button"><i class="bi bi-pencil-square" aria-hidden="true"></i>Modify</button>
+      <button class="btn btn-decision btn-reject" id="btnReject" type="button"><i class="bi bi-x-lg" aria-hidden="true"></i>Reject</button>
+    </div>
+  </div>
+
+  <!-- Decision modal -->
+  <div class="modal fade" id="decisionModal" tabindex="-1" aria-labelledby="decisionModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <form class="modal-content" id="decisionForm" novalidate>
+        <div class="modal-header"><h2 class="modal-title" id="decisionModalTitle">Confirm decision</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+        <div class="modal-body">
+          <div class="mb-3 p-2 border rounded bg-light"><div class="eyebrow">Standard</div><div class="mono fw-semibold" id="dmStd"></div><div class="small text-muted" id="dmTender"></div></div>
+          <div class="mb-3 d-none" id="dmModifyWrap"><label class="form-label" for="dmModType">Modification</label><select class="form-select" id="dmModType"></select></div>
+          <div class="mb-3"><label class="form-label" for="dmReason">Reason <span id="dmReasonReq" class="text-danger">*</span></label><textarea class="form-control" id="dmReason" rows="3" placeholder="Record your reasoning for the audit trail"></textarea><div class="invalid-feedback">Please record a reason (at least 5 characters).</div></div>
+          <div class="form-check"><input class="form-check-input" type="checkbox" id="dmConfirm"><label class="form-check-label small" for="dmConfirm">I am the procurement officer and this decision is my own. AI output was reviewed against the cited evidence.</label><div class="invalid-feedback">Confirmation is required.</div></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary" id="dmSubmit">Record decision</button></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Audit offcanvas -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="auditPanel" aria-labelledby="auditTitle">
+    <div class="offcanvas-header"><div><h2 class="offcanvas-title h6 fw-bold mb-0" id="auditTitle">Audit trail</h2><div class="small text-muted">Immutable-style log of system and officer events (session)</div></div><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></div>
+    <div class="offcanvas-body"><ul class="timeline" id="auditList"></ul></div>
+  </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:2000; margin-bottom: 84px" id="toastHost" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="vendor/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="js/mock-dataset.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/components.js"></script>
+  <script src="js/dom-renderer.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

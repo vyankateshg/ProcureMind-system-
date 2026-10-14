@@ -1,0 +1,9 @@
+/* Locally vendored fonts so the demo works offline. */
+@font-face{font-family:'Inter';font-weight:400;font-display:swap;src:url(inter-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Inter';font-weight:500;font-display:swap;src:url(inter-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Inter';font-weight:600;font-display:swap;src:url(inter-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Inter';font-weight:700;font-display:swap;src:url(inter-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Fira Code';font-weight:400;font-display:swap;src:url(fira-code-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Fira Code';font-weight:500;font-display:swap;src:url(fira-code-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Noto Sans Devanagari';font-weight:400;font-display:swap;src:url(noto-sans-devanagari-devanagari-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Noto Sans Devanagari';font-weight:600;font-display:swap;src:url(noto-sans-devanagari-devanagari-600-normal.woff2) format('woff2')}
